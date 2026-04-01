@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MIS Bank Mid Exam Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* === CSS RESET & VARIABLES === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  /* Light Theme - Warm Neutrals & Violet Accent */
+  --bg: #fdfbf7;
+  --bg-rgb: 253, 251, 247;
+  --surface: #ffffff;
+  --surface-alt: #f3f0ea;
+  --text-main: #1c1917;
+  --text-muted: #78716c;
+  --border: #e7e5e4;
+  --border-hover: #d6d3d1;
+  --primary: #138dff;
+  --primary-hover: #0077ff;
+  --primary-bg: #ede9fe;
+  
+  /* Retained States */
+  --answered: #64748b;
+  --success: #10b981;
+  --success-bg: #d1fae5;
+  --danger: #ef4444;
+  --danger-bg: #fee2e2;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --modal-overlay: rgba(28, 25, 23, 0.4);
+}
+
+[data-theme="dark"] {
+  /* Dark Theme - Deep Onyx & Violet Accent */
+  --bg: #0c0c0c;
+  --bg-rgb: 12, 12, 12;
+  --surface: #18181b;
+  --surface-alt: #27272a;
+  --text-main: #fafaf9;
+  --text-muted: #a1a1aa;
+  --border: #3f3f46;
+  --border-hover: #52525b;
+  --primary: #138dff;
+  --primary-hover: #0077ff;
+  --primary-bg: rgba(167, 139, 250, 0.15);
+  
+  /* Retained States */
+  --answered: #94a3b8;
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.15);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.15);
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+}
+
+/* === BASE TYPOGRAPHY & LAYOUT === */
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--bg);
+  color: var(--text-main);
+  line-height: 1.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* === HEADER & SCOREBOARD === */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(var(--bg-rgb), 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0 0 0;
+  margin-bottom: 24px;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header-title {
+  font-weight: 800;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-main);
+}
+
+.header-title svg {
+  color: var(--primary);
+  width: 24px;
+  height: 24px;
+}
+
+.settings-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+  background: var(--surface-alt);
+  color: var(--text-main);
+}
+
+.stats-container {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scrollbar-width: none;
+}
+.stats-container::-webkit-scrollbar { display: none; }
+
+.stat-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.stat-badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+.stat-badge .val { font-family: 'JetBrains Mono', monospace; }
+.bg-neutral { background: var(--answered); }
+.bg-success { background: var(--success); }
+.bg-danger { background: var(--danger); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+
+.progress-track {
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+}
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  width: 0%;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === TABS === */
+.tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0 16px;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.tab-btn:hover {
+  border-color: var(--border-hover);
+  color: var(--text-main);
+}
+.tab-btn.active {
+  background: var(--primary-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* === QUESTION CARDS === */
+.q-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.q-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  animation: fadeIn 0.4s ease forwards;
+  opacity: 0;
+  transform: translateY(10px);
+}
+@keyframes fadeIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.q-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.q-card.state-correct { border-left: 4px solid var(--success); }
+.q-card.state-wrong { border-left: 4px solid var(--danger); }
+
+.q-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.q-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.q-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.q-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text-main);
+}
+
+.options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--surface);
+  user-select: none;
+}
+.option:hover:not(.locked) {
+  border-color: var(--primary);
+  background: var(--surface-alt);
+}
+.option.locked { cursor: default; }
+
+.opt-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--surface-alt);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.opt-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Option States */
+.option.chosen-right {
+  background: var(--success-bg);
+  border-color: var(--success);
+}
+.option.chosen-right .opt-letter {
+  background: var(--success);
+  color: white;
+}
+
+.option.chosen-wrong {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+}
+.option.chosen-wrong .opt-letter {
+  background: var(--danger);
+  color: white;
+}
+
+.option.reveal {
+  border-color: var(--success);
+  background: var(--surface);
+}
+.option.reveal .opt-letter {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid var(--success);
+}
+
+/* Feedback Box */
+.feedback {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  animation: expandDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes expandDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.feedback.success {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.feedback.error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.feedback svg { flex-shrink: 0; margin-top: 2px; }
+
+/* === FINISH SCREEN === */
+#finishScreen {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 48px 24px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  margin-top: 24px;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.finish-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--primary-bg);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 auto 24px;
+  border: 8px solid var(--surface);
+  box-shadow: 0 0 0 2px var(--border);
+}
+
+.finish-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
+.finish-subtitle { color: var(--text-muted); margin-bottom: 32px; font-weight: 500; }
+
+.finish-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.fin-stat {
+  background: var(--surface-alt);
+  padding: 16px;
+  border-radius: 16px;
+}
+.fin-stat .val { font-size: 1.5rem; font-weight: 800; margin-bottom: 4px; }
+.fin-stat .lbl { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+}
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5);
+}
+
+/* === SETTINGS MODAL & BOTTOM SHEET === */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-overlay);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal {
+  background: var(--surface);
+  width: 90%;
+  max-width: 400px;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
+  transform: scale(0.95) translateY(10px);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid var(--border);
+}
+.overlay.active .modal {
+  transform: scale(1) translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.modal-title { font-size: 1.25rem; font-weight: 700; }
+.modal-close {
+  background: var(--surface-alt);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.modal-close:hover { background: var(--border); color: var(--text-main); }
+
+.theme-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  border-radius: 16px;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.theme-btn svg { color: var(--text-muted); transition: color 0.2s; }
+.theme-btn:hover { border-color: var(--border-hover); background: var(--surface-alt); }
+.theme-btn.active {
+  border-color: var(--primary);
+  background: var(--primary-bg);
+}
+.theme-btn.active svg { color: var(--primary); }
+
+/* Switch Toggle Styling */
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  margin-top: 24px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--text-muted);
+  transition: .4s;
+  border-radius: 24px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: var(--primary);
+}
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* Mobile Bottom Sheet Override */
+@media (max-width: 600px) {
+  .overlay { align-items: flex-end; }
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 28px 28px 0 0;
+    border-bottom: none;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 20px));
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .overlay.active .modal { transform: translateY(0); }
+  
+  .finish-grid { grid-template-columns: 1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-top">
+      <div class="header-title">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+        </svg>
+        MIS Exam
+      </div>
+      <button class="settings-btn" onclick="openSettings()" aria-label="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.99l1.005.828c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
+      </button>
+    </div>
+    
+    <div class="stats-container">
+      <div class="stat-badge">
+        <div class="dot bg-neutral"></div>
+        <span>Answered</span>
+        <span class="val" id="sbA">0/128</span>
+      </div>
+      <div class="stat-badge text-success">
+        <div class="dot bg-success"></div>
+        <span>Correct</span>
+        <span class="val" id="sbC">0</span>
+      </div>
+      <div class="stat-badge text-danger">
+        <div class="dot bg-danger"></div>
+        <span>Wrong</span>
+        <span class="val" id="sbW">0</span>
+      </div>
+    </div>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="sbFill"></div>
+  </div>
+</header>
+
+<main class="container">
+  <div class="tabs" id="tabsContainer">
+    <button class="tab-btn active" onclick="setFilter('all', this)">All Questions</button>
+    <button class="tab-btn" onclick="setFilter('S1', this)">S1: Basics</button>
+    <button class="tab-btn" onclick="setFilter('S2', this)">S2: Types</button>
+    <button class="tab-btn" onclick="setFilter('S3', this)">S3: Components</button>
+    <button class="tab-btn" onclick="setFilter('S4', this)">S4: Benefits</button>
+    <button class="tab-btn" onclick="setFilter('S5', this)">S5: Architecture</button>
+    <button class="tab-btn" onclick="setFilter('CLIPS', this)">CLIPS</button>
+    <button class="tab-btn" onclick="setFilter('CASE', this)">Case Studies</button>
+  </div>
+
+  <div id="finishScreen">
+    <div class="finish-circle" id="finPct">0%</div>
+    <h2 class="finish-title" id="finTitle">Complete!</h2>
+    <p class="finish-subtitle" id="finMsg">You've finished all the questions.</p>
+    
+    <div class="finish-grid">
+      <div class="fin-stat">
+        <div class="val text-success" id="finC">0</div>
+        <div class="lbl">Correct</div>
+      </div>
+      <div class="fin-stat">
+        <div class="val text-danger" id="finW">0</div>
+        <div class="lbl">Wrong</div>
+      </div>
+      <div class="fin-stat">
+        <div class="val text-main">128</div>
+        <div class="lbl">Total</div>
+      </div>
+    </div>
+    
+    <button class="btn-primary" onclick="retryQuiz()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+      Retry Quiz
+    </button>
+  </div>
+
+  <div class="q-list" id="quizContainer">
+    <!-- Questions injected here -->
+  </div>
+</main>
+
+<!-- Settings Modal / Bottom Sheet -->
+<div class="overlay" id="settingsOverlay" onclick="closeSettingsOverlay(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Settings</h3>
+      <button class="modal-close" onclick="closeSettings()" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <div class="theme-options">
+      <button class="theme-btn" data-theme="light" onclick="setTheme('light')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+        </svg>
+        Light Mode
+      </button>
+      <button class="theme-btn" data-theme="dark" onclick="setTheme('dark')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+        </svg>
+        Dark Mode
+      </button>
+      <button class="theme-btn" data-theme="system" onclick="setTheme('system')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
+        </svg>
+        System Default
+      </button>
+    </div>
+    
+    <div class="setting-row">
+      <span>Randomize Questions</span>
+      <label class="switch">
+        <input type="checkbox" id="randomizeToggle" onchange="toggleRandomize(this)">
+        <span class="slider"></span>
+      </label>
+    </div>
+    
+  </div>
+</div>
+
+<script>
+// --- THEME MANAGEMENT ---
+const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+let currentTheme = localStorage.getItem('theme') || 'system';
+
+function applyTheme(theme) {
+  if (theme === 'system') {
+    document.documentElement.setAttribute('data-theme', sysDark.matches ? 'dark' : 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+  
+  // Update button active states
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    if (btn.dataset.theme === theme) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+}
+
+function setTheme(theme) {
+  currentTheme = theme;
+  localStorage.setItem('theme', theme);
+  applyTheme(theme);
+}
+
+sysDark.addEventListener('change', () => {
+  if (currentTheme === 'system') applyTheme('system');
+});
+
+// Initialize Theme
+applyTheme(currentTheme);
+
+// --- MODAL LOGIC ---
+const overlay = document.getElementById('settingsOverlay');
+
+function openSettings() {
+  overlay.classList.add('active');
+}
+function closeSettings() {
+  overlay.classList.remove('active');
+}
+function closeSettingsOverlay(e) {
+  if (e.target === overlay) closeSettings();
+}
+
+// --- QUIZ DATA ---
+const LETTERS = ['A', 'B', 'C', 'D'];
+const Q = [
+  // S1
+  {id:1,  s:'S1',t:'S1: Basics',    q:'MIS stands for:',                                    o:['Medical Integrated System','Medical Information Systems','Management Information Software','Medical Internet Services'], a:1},
+  {id:2,  s:'S1',t:'S1: Basics',    q:'MIS is mainly used to:',                              o:['Entertain patients','Manage hospital buildings','Collect and manage healthcare data','Replace doctors'], a:2},
+  {id:3,  s:'S1',t:'S1: Basics',    q:'MIS is a part of:',                                   o:['Cybersecurity','Health informatics','Networking','Robotics'], a:1},
+  {id:4,  s:'S1',t:'S1: Basics',    q:'MIS helps healthcare providers:',                     o:['Work slower','Work inefficiently','Work more efficiently and safely','Avoid patients'], a:2},
+  {id:5,  s:'S1',t:'S1: Basics',    q:'MIS manages:',                                        o:['Only lab results','Only billing','Various healthcare data','Only images'], a:2},
+  {id:6,  s:'S1',t:'S1: Basics',    q:'Which is NOT a function of MIS?',                     o:['Store patient data','Support decisions','Play music','Manage operations'], a:2},
+  {id:7,  s:'S1',t:'S1: Basics',    q:'MIS supports:',                                       o:['Gaming','Diagnosis and treatment','Cooking','Sports'], a:1},
+  {id:8,  s:'S1',t:'S1: Basics',    q:'MIS enables communication between:',                  o:['Doctors and engineers','Hospitals and departments','Teachers and students','Farmers and markets'], a:1},
+  {id:9,  s:'S1',t:'S1: Basics',    q:'MIS supports (public health):',                       o:['Public health analysis','Movie production','Marketing','Sports analytics'], a:0},
+  {id:10, s:'S1',t:'S1: Basics',    q:'MIS stores:',                                         o:['Weather data','Medical history','Sports data','Music files'], a:1},
+  {id:11, s:'S1',t:'S1: Basics',    q:'MIS helps in:',                                       o:['Decreasing efficiency','Increasing errors','Improving efficiency','Avoiding technology'], a:2},
+  {id:12, s:'S1',t:'S1: Basics',    q:'MIS includes:',                                       o:['Only doctors','Only computers','Systems + data + users','Only nurses'], a:2},
+  {id:13, s:'S1',t:'S1: Basics',    q:'MIS is:',                                             o:['Manual system','Paper-based system','Computer-based system','Mechanical system'], a:2},
+  {id:14, s:'S1',t:'S1: Basics',    q:'MIS is used in:',                                     o:['Hospitals','Schools','Factories','All'], a:0},
+  {id:15, s:'S1',t:'S1: Basics',    q:'MIS improves:',                                       o:['Patient safety','Risk','Errors','Delay'], a:0},
+  // S2
+  {id:16, s:'S2',t:'S2: Types',     q:'EHR stands for:',                                     o:['Electronic Health Records','Emergency Health Report','Electronic Hospital Record','Health Resource'], a:0},
+  {id:17, s:'S2',t:'S2: Types',     q:'EHR contains:',                                       o:['Only lab data','Complete patient data','Only billing','Only prescriptions'], a:1},
+  {id:18, s:'S2',t:'S2: Types',     q:'EHR can be shared:',                                  o:['Within one system only','Across hospitals','Only offline','Never'], a:1},
+  {id:19, s:'S2',t:'S2: Types',     q:'EMR stands for:',                                     o:['Electronic Medical Records','Emergency Medical Response','Electronic Monitoring Record','Medical Resource'], a:0},
+  {id:20, s:'S2',t:'S2: Types',     q:'EMR is used:',                                        o:['Across countries','Within one organization','Only by patients','Only by labs'], a:1},
+  {id:21, s:'S2',t:'S2: Types',     q:'EMR is:',                                             o:['More comprehensive than EHR','Less comprehensive than EHR','Same as EHR','Not related'], a:1},
+  {id:22, s:'S2',t:'S2: Types',     q:'HIS stands for:',                                     o:['Hospital Information System','Health Integration System','Hospital Internet System','Health Interface System'], a:0},
+  {id:23, s:'S2',t:'S2: Types',     q:'HIS manages:',                                        o:['Only billing','Entire hospital operations','Only labs','Only doctors'], a:1},
+  {id:24, s:'S2',t:'S2: Types',     q:'CDSS stands for:',                                    o:['Clinical Data Storage System','Clinical Decision Support System','Central Decision System','Clinical Device System'], a:1},
+  {id:25, s:'S2',t:'S2: Types',     q:'CDSS helps:',                                         o:['Patients cook','Doctors make decisions','Nurses clean','Engineers design'], a:1},
+  {id:26, s:'S2',t:'S2: Types',     q:'CDSS provides:',                                      o:['Alerts','Music','Videos','Games'], a:0},
+  {id:27, s:'S2',t:'S2: Types',     q:'Example of CDSS:',                                    o:['Drug interaction alert','Billing system','Calendar','Printer'], a:0},
+  {id:28, s:'S2',t:'S2: Types',     q:'CPOE means:',                                         o:['Clinical Patient Order Entry','Computerized Physician Order Entry','Central Order Engine','Clinical Operation Entry'], a:1},
+  {id:29, s:'S2',t:'S2: Types',     q:'PACS is used for:',                                   o:['Billing','Imaging storage','Scheduling','Communication'], a:1},
+  {id:30, s:'S2',t:'S2: Types',     q:'PHR stands for:',                                     o:['Patient Health Record','Personal Health Record','Private Health Record','Public Health Record'], a:1},
+  {id:31, s:'S2',t:'S2: Types',     q:'PHR is controlled by:',                               o:['Doctors','Hospital','Patient','Government'], a:2},
+  {id:32, s:'S2',t:'S2: Types',     q:'LIS stands for:',                                     o:['Lab Information System','Local Internet System','Lab Integration System','Logical Info System'], a:0},
+  {id:33, s:'S2',t:'S2: Types',     q:'RIS stands for:',                                     o:['Radiology Info System','Research Info System','Risk Info System','Resource Info System'], a:0},
+  {id:34, s:'S2',t:'S2: Types',     q:'PMS handles:',                                        o:['Imaging','Billing & scheduling','Diagnosis','Surgery'], a:1},
+  {id:35, s:'S2',t:'S2: Types',     q:'EHR improves:',                                       o:['Treatment decisions','Games','Music','Travel'], a:0},
+  {id:36, s:'S2',t:'S2: Types',     q:'EMR is:',                                             o:['Global','Organization-specific','Public','Open'], a:1},
+  {id:37, s:'S2',t:'S2: Types',     q:'HIS integrates:',                                     o:['Only doctors','Clinical + admin + finance','Only labs','Only pharmacy'], a:1},
+  {id:38, s:'S2',t:'S2: Types',     q:'CDSS may cause:',                                     o:['Alert fatigue','Happiness','Speed','Growth'], a:0},
+  {id:39, s:'S2',t:'S2: Types',     q:'PACS works with:',                                    o:['Text data','Images','Audio','Video'], a:1},
+  {id:40, s:'S2',t:'S2: Types',     q:'CPOE reduces:',                                       o:['Errors','Speed','Efficiency','Accuracy'], a:0},
+  // S3
+  {id:41, s:'S3',t:'S3: Components',q:'Patient registration is:',                            o:['Output','Component','Hardware','Software'], a:1},
+  {id:42, s:'S3',t:'S3: Components',q:'Clinical documentation includes:',                   o:['Notes','Music','Movies','Photos'], a:0},
+  {id:43, s:'S3',t:'S3: Components',q:'Pharmacy systems manage:',                            o:['Medicines','Food','Clothes','Tools'], a:0},
+  {id:44, s:'S3',t:'S3: Components',q:'Radiology systems manage:',                           o:['Images','Text','Audio','Video'], a:0},
+  {id:45, s:'S3',t:'S3: Components',q:'Scheduling is used for:',                             o:['Appointments','Cooking','Shopping','Writing'], a:0},
+  {id:46, s:'S3',t:'S3: Components',q:'Billing handles:',                                    o:['Payments','Diagnosis','Images','Labs'], a:0},
+  {id:47, s:'S3',t:'S3: Components',q:'MIS integrates:',                                     o:['Multiple modules','One module','No modules','Only hardware'], a:0},
+  {id:48, s:'S3',t:'S3: Components',q:'Lab systems store:',                                  o:['Results','Videos','Songs','Emails'], a:0},
+  {id:49, s:'S3',t:'S3: Components',q:'Insurance module handles:',                           o:['Claims','Images','Audio','Coding'], a:0},
+  {id:50, s:'S3',t:'S3: Components',q:'Workflow includes:',                                  o:['Processes','Images','Music','Games'], a:0},
+  {id:51, s:'S3',t:'S3: Components',q:'Data in MIS includes:',                               o:['Medical history','Movies','Sports','News'], a:0},
+  {id:52, s:'S3',t:'S3: Components',q:'Integration improves:',                               o:['Coordination','Errors','Delay','Cost'], a:0},
+  {id:53, s:'S3',t:'S3: Components',q:'Systems are:',                                        o:['Isolated','Integrated','Offline','Manual'], a:1},
+  {id:54, s:'S3',t:'S3: Components',q:'Clinical data includes:',                             o:['Patient info','Weather','News','Sports'], a:0},
+  {id:55, s:'S3',t:'S3: Components',q:'MIS modules:',                                        o:['Work independently only','Work together','Are useless','Are manual'], a:1},
+  // S4
+  {id:56, s:'S4',t:'S4: Benefits',  q:'MIS improves:',                                       o:['Patient care','Risk','Errors','Delay'], a:0},
+  {id:57, s:'S4',t:'S4: Benefits',  q:'MIS reduces:',                                        o:['Errors','Quality','Speed','Accuracy'], a:0},
+  {id:58, s:'S4',t:'S4: Benefits',  q:'MIS increases:',                                      o:['Efficiency','Errors','Delay','Risk'], a:0},
+  {id:59, s:'S4',t:'S4: Benefits',  q:'MIS supports:',                                       o:['Research','Games','Music','Sports'], a:0},
+  {id:60, s:'S4',t:'S4: Benefits',  q:'MIS helps:',                                          o:['Decision-making','Cooking','Painting','Writing'], a:0},
+  {id:61, s:'S4',t:'S4: Benefits',  q:'A challenge is:',                                     o:['Security risk','High speed','Good care','Accuracy'], a:0},
+  {id:62, s:'S4',t:'S4: Benefits',  q:'Another challenge:',                                  o:['Integration issues','Easy use','Low cost','High efficiency'], a:0},
+  {id:63, s:'S4',t:'S4: Benefits',  q:'MIS cost is:',                                        o:['Low','High','Zero','Fixed'], a:1},
+  {id:64, s:'S4',t:'S4: Benefits',  q:'Training is:',                                        o:['Not needed','Required','Optional','Useless'], a:1},
+  {id:65, s:'S4',t:'S4: Benefits',  q:'Alert fatigue occurs when:',                          o:['Too many alerts','No alerts','Few alerts','Manual alerts'], a:0},
+  {id:66, s:'S4',t:'S4: Benefits',  q:'Security includes:',                                  o:['Encryption','Games','Music','Video'], a:0},
+  {id:67, s:'S4',t:'S4: Benefits',  q:'Privacy is:',                                         o:['Important','Optional','Ignored','Removed'], a:0},
+  {id:68, s:'S4',t:'S4: Benefits',  q:'MIS converts:',                                       o:['Data → Information','Info → Noise','Data → Music','Text → Images'], a:0},
+  {id:69, s:'S4',t:'S4: Benefits',  q:'MIS helps:',                                          o:['Public health','Games','Sports','Cooking'], a:0},
+  {id:70, s:'S4',t:'S4: Benefits',  q:'Integration improves:',                               o:['Coordination','Errors','Delay','Risk'], a:0},
+  // S5
+  {id:71, s:'S5',t:'S5: Architecture',q:'MIS architecture is:',                              o:['Layered','Flat','Linear','Random'], a:0},
+  {id:72, s:'S5',t:'S5: Architecture',q:'Presentation layer is:',                            o:['UI','Database','Network','Hardware'], a:0},
+  {id:73, s:'S5',t:'S5: Architecture',q:'Business layer handles:',                           o:['Workflows','Storage','Security','Hardware'], a:0},
+  {id:74, s:'S5',t:'S5: Architecture',q:'Data layer stores:',                                o:['Data','UI','Apps','Code'], a:0},
+  {id:75, s:'S5',t:'S5: Architecture',q:'Integration layer connects:',                       o:['Systems','Users','Hardware','Devices'], a:0},
+  {id:76, s:'S5',t:'S5: Architecture',q:'Infrastructure layer includes:',                    o:['Servers','UI','Apps','Data'], a:0},
+  {id:77, s:'S5',t:'S5: Architecture',q:'HL7 is:',                                           o:['Data standard','Device','App','Database'], a:0},
+  {id:78, s:'S5',t:'S5: Architecture',q:'FHIR uses:',                                        o:['APIs','Paper','Manual system','Fax'], a:0},
+  {id:79, s:'S5',t:'S5: Architecture',q:'DICOM is for:',                                     o:['Images','Text','Audio','Video'], a:0},
+  {id:80, s:'S5',t:'S5: Architecture',q:'Security includes:',                                o:['Authentication','Games','Music','Video'], a:0},
+  {id:81, s:'S5',t:'S5: Architecture',q:'Encryption protects:',                              o:['Data','UI','Apps','Hardware'], a:0},
+  {id:82, s:'S5',t:'S5: Architecture',q:'Audit logs track:',                                 o:['Activity','Images','Audio','Video'], a:0},
+  {id:83, s:'S5',t:'S5: Architecture',q:'APIs are used for:',                                o:['Integration','Storage','UI','Security'], a:0},
+  {id:84, s:'S5',t:'S5: Architecture',q:'Middleware is:',                                    o:['Integration layer','Data layer','UI','Hardware'], a:0},
+  {id:85, s:'S5',t:'S5: Architecture',q:'Cloud is part of:',                                 o:['Infrastructure','UI','Data','Logic'], a:0},
+  {id:86, s:'S5',t:'S5: Architecture',q:'Microservices:',                                    o:['Modular services','Large systems','Hardware','Networks'], a:0},
+  {id:87, s:'S5',t:'S5: Architecture',q:'FHIR uses (format):',                               o:['JSON/XML','Binary','Audio','Video'], a:0},
+  {id:88, s:'S5',t:'S5: Architecture',q:'AI layer supports:',                                o:['Prediction','Cooking','Sports','Gaming'], a:0},
+  {id:89, s:'S5',t:'S5: Architecture',q:'Scalability means:',                                o:['Growth ability','Speed','Size','Cost'], a:0},
+  {id:90, s:'S5',t:'S5: Architecture',q:'Interoperability means:',                           o:['System communication','Storage','UI','Security'], a:0},
+  {id:91, s:'S5',t:'S5: Architecture',q:'Availability means:',                               o:['System uptime','Speed','Size','Cost'], a:0},
+  {id:92, s:'S5',t:'S5: Architecture',q:'Security spans:',                                   o:['All layers','One layer','Data only','UI only'], a:0},
+  {id:93, s:'S5',t:'S5: Architecture',q:'API Gateway is:',                                   o:['Entry point','Database','UI','Device'], a:0},
+  {id:94, s:'S5',t:'S5: Architecture',q:'Kafka is used for:',                                o:['Streaming','Storage','UI','Security'], a:0},
+  {id:95, s:'S5',t:'S5: Architecture',q:'Kubernetes manages:',                               o:['Containers','UI','Data','Users'], a:0},
+  {id:96, s:'S5',t:'S5: Architecture',q:'Docker is used for:',                               o:['Containers','UI','Data','Security'], a:0},
+  {id:97, s:'S5',t:'S5: Architecture',q:'AI in MIS supports:',                               o:['CDSS','Billing','UI','Hardware'], a:0},
+  {id:98, s:'S5',t:'S5: Architecture',q:'Data lake stores:',                                 o:['Large data','Small data','UI','Code'], a:0},
+  {id:99, s:'S5',t:'S5: Architecture',q:'Real-time data means:',                             o:['Immediate access','Delayed','Offline','Manual'], a:0},
+  {id:100,s:'S5',t:'S5: Architecture',q:'MIS main goal:',                                    o:['Improve healthcare','Reduce care','Increase errors','Remove systems'], a:0},
+  // CLIPS
+  {id:101,s:'CLIPS',t:'CLIPS',       q:'In CLIPS, knowledge is mainly represented using:',   o:['Classes','Facts and Rules','Tables','JSON'], a:1},
+  {id:102,s:'CLIPS',t:'CLIPS',       q:'Which construct is used to create a rule?',           o:['deffacts','defrule','deffunction','defclass'], a:1},
+  {id:103,s:'CLIPS',t:'CLIPS',       q:'Which function prints output to screen?',             o:['display','write','printout','echo'], a:2},
+  {id:104,s:'CLIPS',t:'CLIPS',       q:'What does (test (> ?t 38)) do?',                      o:['Assign value','Compare condition','Print variable','Create fact'], a:1},
+  {id:105,s:'CLIPS',t:'CLIPS',       q:'Which is used to define user functions?',             o:['defrule','deffacts','deffunction','defglobal'], a:2},
+  {id:106,s:'CLIPS',t:'CLIPS',       q:'What does (bind ?x 5) do?',                           o:['Deletes variable','Assigns value','Prints value','Creates rule'], a:1},
+  {id:107,s:'CLIPS',t:'CLIPS',       q:'Which statement adds new knowledge?',                 o:['add','insert','assert','push'], a:2},
+  {id:108,s:'CLIPS',t:'CLIPS',       q:'Which removes a fact?',                               o:['delete','remove','retract','erase'], a:2},
+  {id:109,s:'CLIPS',t:'CLIPS',       q:'CLIPS uses which reasoning strategy?',                o:['Forward chaining','Backward chaining','Random search','Gradient descent'], a:0},
+  {id:110,s:'CLIPS',t:'CLIPS',       q:'What does crlf mean in printout?',                   o:['Clear memory','New line','Delete fact','Stop program'], a:1},
+  // Case Studies
+  {id:111,s:'CASE',t:'Case Studies', q:'What is the main purpose of a Medical Information System (MIS)?',             o:['Entertainment','Managing healthcare data','Gaming','Social networking'], a:1},
+  {id:112,s:'CASE',t:'Case Studies', q:'Which layer interacts directly with doctors and nurses?',                      o:['Data Layer','Infrastructure Layer','Presentation Layer','Integration Layer'], a:2},
+  {id:113,s:'CASE',t:'Case Studies', q:'Which layer stores patient records and lab results?',                          o:['Data Layer','Presentation Layer','Business Layer','Security Layer'], a:0},
+  {id:114,s:'CASE',t:'Case Studies', q:'Which standard is commonly used for healthcare data exchange?',                o:['HTTP','HL7 / FHIR','FTP','SMTP'], a:1},
+  {id:115,s:'CASE',t:'Case Studies', q:'Which system stores digital patient health records?',                          o:['ERP','CRM','EHR','LMS'], a:2},
+  {id:116,s:'CASE',t:'Case Studies', q:'Clinical Decision Support Systems (CDSS) belong mainly to which layer?',      o:['Presentation','Business Logic','Infrastructure','Network'], a:1},
+  {id:117,s:'CASE',t:'Case Studies', q:'Which layer connects lab systems, pharmacy systems, and external hospitals?',  o:['Integration Layer','Presentation Layer','Data Entry Layer','Security Layer'], a:0},
+  {id:118,s:'CASE',t:'Case Studies', q:'Which is NOT part of MIS infrastructure?',                                    o:['Cloud servers','Networks','Medical devices','Patient diagnosis rules'], a:3},
+  {id:119,s:'CASE',t:'Case Studies', q:'Which of the following is a security feature in MIS?',                        o:['Encryption','Authentication','Access control','All of the above'], a:3},
+  {id:120,s:'CASE',t:'Case Studies', q:'PACS is mainly used for:',                                                    o:['Billing','Image storage and sharing','Appointment booking','Payroll'], a:1},
+  {id:121,s:'CASE',t:'Case Studies', q:'In modern cloud MIS, microservices help mainly with:',                        o:['Reducing data size','System scalability and flexibility','Removing databases','Removing security'], a:1},
+  {id:122,s:'CASE',t:'Case Studies', q:'FHIR is best described as:',                                                  o:['Database language','Healthcare data exchange standard','Programming language','Operating system'], a:1},
+  {id:123,s:'CASE',t:'Case Studies', q:'Which layer typically contains APIs?',                                        o:['Integration Layer','Presentation Layer','Data Layer','Device Layer'], a:0},
+  {id:124,s:'CASE',t:'Case Studies', q:'Which MIS goal is related to different hospital systems working together?',   o:['Scalability','Interoperability','Usability','Portability'], a:1},
+  {id:125,s:'CASE',t:'Case Studies', q:'In AI-enabled MIS, NLP is mainly used for:',                                  o:['Medical imaging hardware','Processing clinical text notes','Network routing','Server cooling'], a:1},
+  {id:126,s:'CASE',t:'Case Studies', q:'Doctors view patient data via a web dashboard. Which MIS layer is responsible?', o:['Data Layer','Presentation Layer','Infrastructure Layer','Integration Layer'], a:1},
+  {id:127,s:'CASE',t:'Case Studies', q:'Lab results appear in patient record automatically. Which layer enabled this?',   o:['Business Logic','Integration Layer','Presentation Layer','Security Layer'], a:1},
+  {id:128,s:'CASE',t:'Case Studies', q:'A doctor prescribes a drug; system warns about drug interaction. Which system?',  o:['PACS','CDSS','LIS','RIS'], a:1},
+];
+
+// --- RANDOMIZATION & STATE ---
+let displayQ = [...Q];
+let isRandomized = localStorage.getItem('randomize') === 'true';
+document.getElementById('randomizeToggle').checked = isRandomized;
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function applyRandomization() {
+  if (isRandomized) {
+    shuffleArray(displayQ);
+  } else {
+    // Sort back to their original numerical ID order
+    displayQ.sort((a, b) => a.id - b.id);
+  }
+}
+
+function toggleRandomize(el) {
+  isRandomized = el.checked;
+  localStorage.setItem('randomize', isRandomized);
+  applyRandomization();
+  renderQuiz();
+}
+
+// Initial shuffle apply
+applyRandomization();
+
+// --- QUIZ STATE ---
+let answers = {};
+let correctCount = 0;
+let wrongCount = 0;
+let answeredCount = 0;
+let currentFilter = 'all';
+
+// --- ICONS ---
+const iconCheck = `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+const iconCross = `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+
+// --- RENDERING ---
+function updateScoreboard() {
+  document.getElementById('sbA').innerText = `${answeredCount}/${Q.length}`;
+  document.getElementById('sbC').innerText = correctCount;
+  document.getElementById('sbW').innerText = wrongCount;
+  
+  const percentage = (answeredCount / Q.length) * 100;
+  document.getElementById('sbFill').style.width = percentage + '%';
+  
+  if(answeredCount === Q.length) {
+    showFinishScreen();
+  }
+}
+
+function handleChoose(qId, optIdx) {
+  if (answers[qId] !== undefined) return; // Already answered
+  
+  answers[qId] = optIdx;
+  const question = Q.find(q => q.id === qId);
+  const isCorrect = (optIdx === question.a);
+  
+  if (isCorrect) correctCount++;
+  else wrongCount++;
+  answeredCount++;
+  
+  // Update DOM explicitly without full re-render
+  const card = document.getElementById(`qcard-${qId}`);
+  card.classList.add(isCorrect ? 'state-correct' : 'state-wrong');
+  
+  const options = card.querySelectorAll('.option');
+  options.forEach((optEl, i) => {
+    optEl.classList.add('locked');
+    optEl.removeAttribute('onclick'); // remove listener
+    
+    if (i === optIdx && isCorrect) optEl.classList.add('chosen-right');
+    if (i === optIdx && !isCorrect) optEl.classList.add('chosen-wrong');
+    if (!isCorrect && i === question.a) optEl.classList.add('reveal');
+  });
+  
+  // Inject feedback
+  const optsContainer = card.querySelector('.options-grid');
+  const feedbackDiv = document.createElement('div');
+  feedbackDiv.className = `feedback ${isCorrect ? 'success' : 'error'}`;
+  feedbackDiv.innerHTML = isCorrect 
+    ? `${iconCheck} <span><strong>Correct!</strong> The answer is ${LETTERS[question.a]}: ${question.o[question.a]}</span>`
+    : `${iconCross} <span><strong>Incorrect.</strong> The correct answer is ${LETTERS[question.a]}: ${question.o[question.a]}</span>`;
+  
+  optsContainer.insertAdjacentElement('afterend', feedbackDiv);
+  
+  updateScoreboard();
+}
+
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  
+  // Use displayQ instead of Q so ordering preferences are respected
+  const filteredQ = currentFilter === 'all' ? displayQ : displayQ.filter(q => q.s === currentFilter);
+  
+  filteredQ.forEach((q, index) => {
+    const isAnswered = answers[q.id] !== undefined;
+    const userAns = answers[q.id];
+    const isCorrect = isAnswered && (userAns === q.a);
+    
+    let cardClass = 'q-card';
+    if(isAnswered) cardClass += isCorrect ? ' state-correct' : ' state-wrong';
+    
+    // Build options
+    let optionsHtml = q.o.map((optText, i) => {
+      let optClass = 'option';
+      let clickAttr = `onclick="handleChoose(${q.id}, ${i})"`;
+      
+      if (isAnswered) {
+        optClass += ' locked';
+        clickAttr = '';
+        if (i === userAns && isCorrect) optClass += ' chosen-right';
+        if (i === userAns && !isCorrect) optClass += ' chosen-wrong';
+        if (!isCorrect && i === q.a) optClass += ' reveal';
+      }
+      
+      return `
+        <div class="${optClass}" ${clickAttr}>
+          <div class="opt-letter">${LETTERS[i]}</div>
+          <div class="opt-text">${optText}</div>
+        </div>
+      `;
+    }).join('');
+    
+    // Build feedback if answered
+    let feedbackHtml = '';
+    if (isAnswered) {
+      feedbackHtml = `
+        <div class="feedback ${isCorrect ? 'success' : 'error'}">
+          ${isCorrect ? iconCheck : iconCross}
+          <span><strong>${isCorrect ? 'Correct!' : 'Incorrect.'}</strong> The answer is ${LETTERS[q.a]}: ${q.o[q.a]}</span>
+        </div>
+      `;
+    }
+    
+    const cardHtml = `
+      <div class="${cardClass}" id="qcard-${q.id}" style="animation-delay: ${Math.min(index * 0.03, 0.4)}s">
+        <div class="q-header">
+          <span class="q-tag">${q.t}</span>
+          <span class="q-num">Q${q.id}</span>
+        </div>
+        <div class="q-text">${q.q}</div>
+        <div class="options-grid">
+          ${optionsHtml}
+        </div>
+        ${feedbackHtml}
+      </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', cardHtml);
+  });
+}
+
+function setFilter(filterVal, btnEl) {
+  currentFilter = filterVal;
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  btnEl.classList.add('active');
+  renderQuiz();
+  // Ensure we smoothly scroll slightly up if user is deep
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showFinishScreen() {
+  const finishScreen = document.getElementById('finishScreen');
+  const pct = Math.round((correctCount / Q.length) * 100);
+  
+  document.getElementById('finPct').innerText = `${pct}%`;
+  document.getElementById('finC').innerText = correctCount;
+  document.getElementById('finW').innerText = wrongCount;
+  
+  const titleEl = document.getElementById('finTitle');
+  const msgEl = document.getElementById('finMsg');
+  
+  if (pct >= 90) { titleEl.innerText = 'Outstanding! 🏆'; msgEl.innerText = 'You have mastered the material.'; }
+  else if (pct >= 75) { titleEl.innerText = 'Great Job! 🎯'; msgEl.innerText = 'You have a solid understanding of MIS.'; }
+  else if (pct >= 60) { titleEl.innerText = 'Good Effort 📚'; msgEl.innerText = 'A little more review and you will be perfect.'; }
+  else { titleEl.innerText = 'Keep Practicing 💪'; msgEl.innerText = 'Review the topics and try again!'; }
+  
+  finishScreen.style.display = 'block';
+  finishScreen.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function retryQuiz() {
+  answers = {};
+  correctCount = 0;
+  wrongCount = 0;
+  answeredCount = 0;
+  document.getElementById('finishScreen').style.display = 'none';
+  
+  // Re-apply randomization on retry if it's toggled ON
+  applyRandomization();
+  
+  // Reset tabs
+  const tabs = document.querySelectorAll('.tab-btn');
+  setFilter('all', tabs[0]);
+  updateScoreboard();
+}
+
+// --- UI INTERACTIONS ---
+// Enable horizontal scrolling with mouse wheel for the tabs container on PC
+const tabsContainer = document.getElementById('tabsContainer');
+tabsContainer.addEventListener('wheel', (evt) => {
+  evt.preventDefault();
+  tabsContainer.scrollLeft += evt.deltaY;
+}, { passive: false });
+
+// Init
+updateScoreboard();
+renderQuiz();
+
+</script>
+</body>
+</html>
