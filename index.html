@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIS Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg: #0c0f1d;
+  --surface: #141827;
+  --card: #1b2035;
+  --border: #242d47;
+  --accent: #4f8ef7;
+  --green: #22c55e;
+  --red: #ef4444;
+  --text: #e2e8f0;
+  --muted: #5a6a8a;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+/* SCOREBOARD */
+#scoreboard {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(12,15,29,0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px 12px;
+}
+
+.sb-inner {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.sb-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.sb-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: auto;
+}
+
+.sb-stat {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 6px 15px;
+}
+
+.dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.sb-lbl { font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); }
+.sb-val { font-family:'DM Mono',monospace; font-size:15px; font-weight:500; }
+.sb-val.t { color:var(--text); }
+.sb-val.c { color:var(--green); }
+.sb-val.w { color:var(--red); }
+
+.progress-bar { height:3px; background:var(--border); border-radius:100px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),#7c3aed); border-radius:100px; transition:width 0.4s ease; width:0%; }
+
+/* TABS */
+.tabs {
+  max-width:860px; margin:20px auto 0; padding:0 20px;
+  display:flex; gap:8px; flex-wrap:wrap;
+}
+.tab {
+  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.5px;
+  padding:6px 14px; border-radius:100px; border:1px solid var(--border);
+  background:var(--card); color:var(--muted); cursor:pointer; transition:all .18s;
+}
+.tab:hover { border-color:var(--accent); color:var(--accent); }
+.tab.active { background:rgba(79,142,247,.12); border-color:var(--accent); color:var(--accent); }
+
+/* QUIZ WRAP */
+#quizWrap { max-width:860px; margin:0 auto; padding:20px 20px 80px; }
+
+/* CARD */
+.q-card {
+  background:var(--card); border:1px solid var(--border); border-left:3px solid var(--border);
+  border-radius:16px; padding:22px; margin-bottom:12px; transition:border-color .2s;
+  animation:up .22s ease both;
+}
+@keyframes up { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
+.q-card.ok  { border-left-color:var(--green); }
+.q-card.bad { border-left-color:var(--red); }
+
+.q-meta { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+.q-num  { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); }
+.q-tag  {
+  font-size:11px; font-family:'DM Mono',monospace; padding:3px 10px; border-radius:100px;
+  background:rgba(79,142,247,.1); color:#7eaaff; border:1px solid rgba(79,142,247,.2);
+}
+.q-text { font-size:15px; font-weight:500; line-height:1.6; margin-bottom:14px; color:#f1f5f9; }
+
+/* OPTIONS */
+.opts { display:flex; flex-direction:column; gap:8px; }
+.opt {
+  display:flex; align-items:flex-start; gap:11px; padding:10px 14px;
+  border:1px solid var(--border); border-radius:10px; cursor:pointer;
+  transition:all .15s; background:transparent; user-select:none;
+}
+.opt:hover:not(.locked) { border-color:rgba(79,142,247,.5); background:rgba(79,142,247,.04); }
+.opt.locked { cursor:default; }
+.opt-l {
+  font-family:'DM Mono',monospace; font-size:12px; min-width:24px; height:24px;
+  border:1px solid var(--border); border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--muted); transition:all .15s; flex-shrink:0;
+}
+.opt-t { font-size:14px; line-height:1.5; padding-top:2px; }
+
+.opt.chosen-right { border-color:var(--green); background:rgba(34,197,94,.07); }
+.opt.chosen-right .opt-l { background:var(--green); border-color:var(--green); color:#fff; }
+
+.opt.chosen-wrong { border-color:var(--red); background:rgba(239,68,68,.07); }
+.opt.chosen-wrong .opt-l { background:var(--red); border-color:var(--red); color:#fff; }
+
+.opt.reveal { border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.03); }
+.opt.reveal .opt-l { border-color:var(--green); color:var(--green); }
+
+/* FEEDBACK */
+.feedback {
+  display:none; margin-top:10px; padding:9px 13px; border-radius:10px;
+  font-size:13px; font-weight:500; align-items:center; gap:6px;
+}
+.feedback.show { display:flex; }
+.feedback.right { background:rgba(34,197,94,.1); color:var(--green); border:1px solid rgba(34,197,94,.25); }
+.feedback.wrong  { background:rgba(239,68,68,.1);  color:var(--red);   border:1px solid rgba(239,68,68,.25); }
+
+/* FINISH */
+#finish {
+  display:none; max-width:860px; margin:0 auto 24px; padding:0 20px;
+}
+.fin-box {
+  background:var(--card); border:1px solid var(--border); border-radius:20px;
+  padding:48px 32px; text-align:center;
+}
+.fin-pct { font-family:'Syne',sans-serif; font-size:80px; font-weight:800; line-height:1; }
+.fin-msg { color:var(--muted); margin:8px 0 28px; font-size:15px; }
+.fin-grid { display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:32px; }
+.fstat { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 28px; min-width:100px; }
+.fstat .v { font-family:'Syne',sans-serif; font-size:34px; font-weight:800; margin-bottom:2px; }
+.fstat .l { font-size:12px; color:var(--muted); font-family:'DM Mono',monospace; }
+.retry-btn {
+  background:var(--accent); border:none; color:#fff;
+  font-family:'Syne',sans-serif; font-weight:700; font-size:15px;
+  padding:13px 36px; border-radius:100px; cursor:pointer; transition:all .2s;
+}
+.retry-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(79,142,247,.35); }
+</style>
+</head>
+<body>
+
+<!-- SCOREBOARD -->
+<div id="scoreboard">
+  <div class="sb-inner">
+    <div class="sb-row">
+      <div class="sb-title">🏥 MIS Quiz</div>
+
+      <div class="sb-stat">
+        <div class="dot" style="background:var(--text)"></div>
+        <span class="sb-lbl">Answered</span>
+        <span class="sb-val t" id="sbA">0</span>
+        <span class="sb-lbl">/ 128</span>
+      </div>
+
+      <div class="sb-stat">
+        <div class="dot" style="background:var(--green)"></div>
+        <span class="sb-lbl">Correct</span>
+        <span class="sb-val c" id="sbC">0</span>
+      </div>
+
+      <div class="sb-stat">
+        <div class="dot" style="background:var(--red)"></div>
+        <span class="sb-lbl">Wrong</span>
+        <span class="sb-val w" id="sbW">0</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="sbFill"></div></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs" id="tabs">
+  <div class="tab active" onclick="setFilter('all',this)">All (128)</div>
+  <div class="tab" onclick="setFilter('S1',this)">S1: Basics</div>
+  <div class="tab" onclick="setFilter('S2',this)">S2: Types</div>
+  <div class="tab" onclick="setFilter('S3',this)">S3: Components</div>
+  <div class="tab" onclick="setFilter('S4',this)">S4: Benefits</div>
+  <div class="tab" onclick="setFilter('S5',this)">S5: Architecture</div>
+  <div class="tab" onclick="setFilter('CLIPS',this)">CLIPS</div>
+  <div class="tab" onclick="setFilter('CASE',this)">Case Studies</div>
+</div>
+
+<!-- FINISH BANNER -->
+<div id="finish">
+  <div class="fin-box">
+    <div class="fin-pct" id="finPct">0%</div>
+    <div class="fin-msg" id="finMsg"></div>
+    <div class="fin-grid">
+      <div class="fstat"><div class="v" style="color:var(--green)" id="finC">0</div><div class="l">Correct</div></div>
+      <div class="fstat"><div class="v" style="color:var(--red)"   id="finW">0</div><div class="l">Wrong</div></div>
+      <div class="fstat"><div class="v" style="color:var(--accent)">128</div><div class="l">Total</div></div>
+    </div>
+    <button class="retry-btn" onclick="retry()">🔄 Try Again</button>
+  </div>
+</div>
+
+<!-- QUESTIONS -->
+<div id="quizWrap"></div>
+
+<script>
+const L = ['A','B','C','D'];
+
+const Q = [
+  // S1
+  {id:1,  s:'S1',t:'S1: Basics',    q:'MIS stands for:',                                    o:['Medical Integrated System','Medical Information Systems','Management Information Software','Medical Internet Services'], a:1},
+  {id:2,  s:'S1',t:'S1: Basics',    q:'MIS is mainly used to:',                              o:['Entertain patients','Manage hospital buildings','Collect and manage healthcare data','Replace doctors'], a:2},
+  {id:3,  s:'S1',t:'S1: Basics',    q:'MIS is a part of:',                                   o:['Cybersecurity','Health informatics','Networking','Robotics'], a:1},
+  {id:4,  s:'S1',t:'S1: Basics',    q:'MIS helps healthcare providers:',                     o:['Work slower','Work inefficiently','Work more efficiently and safely','Avoid patients'], a:2},
+  {id:5,  s:'S1',t:'S1: Basics',    q:'MIS manages:',                                        o:['Only lab results','Only billing','Various healthcare data','Only images'], a:2},
+  {id:6,  s:'S1',t:'S1: Basics',    q:'Which is NOT a function of MIS?',                     o:['Store patient data','Support decisions','Play music','Manage operations'], a:2},
+  {id:7,  s:'S1',t:'S1: Basics',    q:'MIS supports:',                                       o:['Gaming','Diagnosis and treatment','Cooking','Sports'], a:1},
+  {id:8,  s:'S1',t:'S1: Basics',    q:'MIS enables communication between:',                  o:['Doctors and engineers','Hospitals and departments','Teachers and students','Farmers and markets'], a:1},
+  {id:9,  s:'S1',t:'S1: Basics',    q:'MIS supports (public health):',                       o:['Public health analysis','Movie production','Marketing','Sports analytics'], a:0},
+  {id:10, s:'S1',t:'S1: Basics',    q:'MIS stores:',                                         o:['Weather data','Medical history','Sports data','Music files'], a:1},
+  {id:11, s:'S1',t:'S1: Basics',    q:'MIS helps in:',                                       o:['Decreasing efficiency','Increasing errors','Improving efficiency','Avoiding technology'], a:2},
+  {id:12, s:'S1',t:'S1: Basics',    q:'MIS includes:',                                       o:['Only doctors','Only computers','Systems + data + users','Only nurses'], a:2},
+  {id:13, s:'S1',t:'S1: Basics',    q:'MIS is:',                                             o:['Manual system','Paper-based system','Computer-based system','Mechanical system'], a:2},
+  {id:14, s:'S1',t:'S1: Basics',    q:'MIS is used in:',                                     o:['Hospitals','Schools','Factories','All'], a:0},
+  {id:15, s:'S1',t:'S1: Basics',    q:'MIS improves:',                                       o:['Patient safety','Risk','Errors','Delay'], a:0},
+  // S2
+  {id:16, s:'S2',t:'S2: Types',     q:'EHR stands for:',                                     o:['Electronic Health Records','Emergency Health Report','Electronic Hospital Record','Health Resource'], a:0},
+  {id:17, s:'S2',t:'S2: Types',     q:'EHR contains:',                                       o:['Only lab data','Complete patient data','Only billing','Only prescriptions'], a:1},
+  {id:18, s:'S2',t:'S2: Types',     q:'EHR can be shared:',                                  o:['Within one system only','Across hospitals','Only offline','Never'], a:1},
+  {id:19, s:'S2',t:'S2: Types',     q:'EMR stands for:',                                     o:['Electronic Medical Records','Emergency Medical Response','Electronic Monitoring Record','Medical Resource'], a:0},
+  {id:20, s:'S2',t:'S2: Types',     q:'EMR is used:',                                        o:['Across countries','Within one organization','Only by patients','Only by labs'], a:1},
+  {id:21, s:'S2',t:'S2: Types',     q:'EMR is:',                                             o:['More comprehensive than EHR','Less comprehensive than EHR','Same as EHR','Not related'], a:1},
+  {id:22, s:'S2',t:'S2: Types',     q:'HIS stands for:',                                     o:['Hospital Information System','Health Integration System','Hospital Internet System','Health Interface System'], a:0},
+  {id:23, s:'S2',t:'S2: Types',     q:'HIS manages:',                                        o:['Only billing','Entire hospital operations','Only labs','Only doctors'], a:1},
+  {id:24, s:'S2',t:'S2: Types',     q:'CDSS stands for:',                                    o:['Clinical Data Storage System','Clinical Decision Support System','Central Decision System','Clinical Device System'], a:1},
+  {id:25, s:'S2',t:'S2: Types',     q:'CDSS helps:',                                         o:['Patients cook','Doctors make decisions','Nurses clean','Engineers design'], a:1},
+  {id:26, s:'S2',t:'S2: Types',     q:'CDSS provides:',                                      o:['Alerts','Music','Videos','Games'], a:0},
+  {id:27, s:'S2',t:'S2: Types',     q:'Example of CDSS:',                                    o:['Drug interaction alert','Billing system','Calendar','Printer'], a:0},
+  {id:28, s:'S2',t:'S2: Types',     q:'CPOE means:',                                         o:['Clinical Patient Order Entry','Computerized Physician Order Entry','Central Order Engine','Clinical Operation Entry'], a:1},
+  {id:29, s:'S2',t:'S2: Types',     q:'PACS is used for:',                                   o:['Billing','Imaging storage','Scheduling','Communication'], a:1},
+  {id:30, s:'S2',t:'S2: Types',     q:'PHR stands for:',                                     o:['Patient Health Record','Personal Health Record','Private Health Record','Public Health Record'], a:1},
+  {id:31, s:'S2',t:'S2: Types',     q:'PHR is controlled by:',                               o:['Doctors','Hospital','Patient','Government'], a:2},
+  {id:32, s:'S2',t:'S2: Types',     q:'LIS stands for:',                                     o:['Lab Information System','Local Internet System','Lab Integration System','Logical Info System'], a:0},
+  {id:33, s:'S2',t:'S2: Types',     q:'RIS stands for:',                                     o:['Radiology Info System','Research Info System','Risk Info System','Resource Info System'], a:0},
+  {id:34, s:'S2',t:'S2: Types',     q:'PMS handles:',                                        o:['Imaging','Billing & scheduling','Diagnosis','Surgery'], a:1},
+  {id:35, s:'S2',t:'S2: Types',     q:'EHR improves:',                                       o:['Treatment decisions','Games','Music','Travel'], a:0},
+  {id:36, s:'S2',t:'S2: Types',     q:'EMR is:',                                             o:['Global','Organization-specific','Public','Open'], a:1},
+  {id:37, s:'S2',t:'S2: Types',     q:'HIS integrates:',                                     o:['Only doctors','Clinical + admin + finance','Only labs','Only pharmacy'], a:1},
+  {id:38, s:'S2',t:'S2: Types',     q:'CDSS may cause:',                                     o:['Alert fatigue','Happiness','Speed','Growth'], a:0},
+  {id:39, s:'S2',t:'S2: Types',     q:'PACS works with:',                                    o:['Text data','Images','Audio','Video'], a:1},
+  {id:40, s:'S2',t:'S2: Types',     q:'CPOE reduces:',                                       o:['Errors','Speed','Efficiency','Accuracy'], a:0},
+  // S3
+  {id:41, s:'S3',t:'S3: Components',q:'Patient registration is:',                            o:['Output','Component','Hardware','Software'], a:1},
+  {id:42, s:'S3',t:'S3: Components',q:'Clinical documentation includes:',                   o:['Notes','Music','Movies','Photos'], a:0},
+  {id:43, s:'S3',t:'S3: Components',q:'Pharmacy systems manage:',                            o:['Medicines','Food','Clothes','Tools'], a:0},
+  {id:44, s:'S3',t:'S3: Components',q:'Radiology systems manage:',                           o:['Images','Text','Audio','Video'], a:0},
+  {id:45, s:'S3',t:'S3: Components',q:'Scheduling is used for:',                             o:['Appointments','Cooking','Shopping','Writing'], a:0},
+  {id:46, s:'S3',t:'S3: Components',q:'Billing handles:',                                    o:['Payments','Diagnosis','Images','Labs'], a:0},
+  {id:47, s:'S3',t:'S3: Components',q:'MIS integrates:',                                     o:['Multiple modules','One module','No modules','Only hardware'], a:0},
+  {id:48, s:'S3',t:'S3: Components',q:'Lab systems store:',                                  o:['Results','Videos','Songs','Emails'], a:0},
+  {id:49, s:'S3',t:'S3: Components',q:'Insurance module handles:',                           o:['Claims','Images','Audio','Coding'], a:0},
+  {id:50, s:'S3',t:'S3: Components',q:'Workflow includes:',                                  o:['Processes','Images','Music','Games'], a:0},
+  {id:51, s:'S3',t:'S3: Components',q:'Data in MIS includes:',                               o:['Medical history','Movies','Sports','News'], a:0},
+  {id:52, s:'S3',t:'S3: Components',q:'Integration improves:',                               o:['Coordination','Errors','Delay','Cost'], a:0},
+  {id:53, s:'S3',t:'S3: Components',q:'Systems are:',                                        o:['Isolated','Integrated','Offline','Manual'], a:1},
+  {id:54, s:'S3',t:'S3: Components',q:'Clinical data includes:',                             o:['Patient info','Weather','News','Sports'], a:0},
+  {id:55, s:'S3',t:'S3: Components',q:'MIS modules:',                                        o:['Work independently only','Work together','Are useless','Are manual'], a:1},
+  // S4
+  {id:56, s:'S4',t:'S4: Benefits',  q:'MIS improves:',                                       o:['Patient care','Risk','Errors','Delay'], a:0},
+  {id:57, s:'S4',t:'S4: Benefits',  q:'MIS reduces:',                                        o:['Errors','Quality','Speed','Accuracy'], a:0},
+  {id:58, s:'S4',t:'S4: Benefits',  q:'MIS increases:',                                      o:['Efficiency','Errors','Delay','Risk'], a:0},
+  {id:59, s:'S4',t:'S4: Benefits',  q:'MIS supports:',                                       o:['Research','Games','Music','Sports'], a:0},
+  {id:60, s:'S4',t:'S4: Benefits',  q:'MIS helps:',                                          o:['Decision-making','Cooking','Painting','Writing'], a:0},
+  {id:61, s:'S4',t:'S4: Benefits',  q:'A challenge is:',                                     o:['Security risk','High speed','Good care','Accuracy'], a:0},
+  {id:62, s:'S4',t:'S4: Benefits',  q:'Another challenge:',                                  o:['Integration issues','Easy use','Low cost','High efficiency'], a:0},
+  {id:63, s:'S4',t:'S4: Benefits',  q:'MIS cost is:',                                        o:['Low','High','Zero','Fixed'], a:1},
+  {id:64, s:'S4',t:'S4: Benefits',  q:'Training is:',                                        o:['Not needed','Required','Optional','Useless'], a:1},
+  {id:65, s:'S4',t:'S4: Benefits',  q:'Alert fatigue occurs when:',                          o:['Too many alerts','No alerts','Few alerts','Manual alerts'], a:0},
+  {id:66, s:'S4',t:'S4: Benefits',  q:'Security includes:',                                  o:['Encryption','Games','Music','Video'], a:0},
+  {id:67, s:'S4',t:'S4: Benefits',  q:'Privacy is:',                                         o:['Important','Optional','Ignored','Removed'], a:0},
+  {id:68, s:'S4',t:'S4: Benefits',  q:'MIS converts:',                                       o:['Data → Information','Info → Noise','Data → Music','Text → Images'], a:0},
+  {id:69, s:'S4',t:'S4: Benefits',  q:'MIS helps:',                                          o:['Public health','Games','Sports','Cooking'], a:0},
+  {id:70, s:'S4',t:'S4: Benefits',  q:'Integration improves:',                               o:['Coordination','Errors','Delay','Risk'], a:0},
+  // S5
+  {id:71, s:'S5',t:'S5: Architecture',q:'MIS architecture is:',                              o:['Layered','Flat','Linear','Random'], a:0},
+  {id:72, s:'S5',t:'S5: Architecture',q:'Presentation layer is:',                            o:['UI','Database','Network','Hardware'], a:0},
+  {id:73, s:'S5',t:'S5: Architecture',q:'Business layer handles:',                           o:['Workflows','Storage','Security','Hardware'], a:0},
+  {id:74, s:'S5',t:'S5: Architecture',q:'Data layer stores:',                                o:['Data','UI','Apps','Code'], a:0},
+  {id:75, s:'S5',t:'S5: Architecture',q:'Integration layer connects:',                       o:['Systems','Users','Hardware','Devices'], a:0},
+  {id:76, s:'S5',t:'S5: Architecture',q:'Infrastructure layer includes:',                    o:['Servers','UI','Apps','Data'], a:0},
+  {id:77, s:'S5',t:'S5: Architecture',q:'HL7 is:',                                           o:['Data standard','Device','App','Database'], a:0},
+  {id:78, s:'S5',t:'S5: Architecture',q:'FHIR uses:',                                        o:['APIs','Paper','Manual system','Fax'], a:0},
+  {id:79, s:'S5',t:'S5: Architecture',q:'DICOM is for:',                                     o:['Images','Text','Audio','Video'], a:0},
+  {id:80, s:'S5',t:'S5: Architecture',q:'Security includes:',                                o:['Authentication','Games','Music','Video'], a:0},
+  {id:81, s:'S5',t:'S5: Architecture',q:'Encryption protects:',                              o:['Data','UI','Apps','Hardware'], a:0},
+  {id:82, s:'S5',t:'S5: Architecture',q:'Audit logs track:',                                 o:['Activity','Images','Audio','Video'], a:0},
+  {id:83, s:'S5',t:'S5: Architecture',q:'APIs are used for:',                                o:['Integration','Storage','UI','Security'], a:0},
+  {id:84, s:'S5',t:'S5: Architecture',q:'Middleware is:',                                    o:['Integration layer','Data layer','UI','Hardware'], a:0},
+  {id:85, s:'S5',t:'S5: Architecture',q:'Cloud is part of:',                                 o:['Infrastructure','UI','Data','Logic'], a:0},
+  {id:86, s:'S5',t:'S5: Architecture',q:'Microservices:',                                    o:['Modular services','Large systems','Hardware','Networks'], a:0},
+  {id:87, s:'S5',t:'S5: Architecture',q:'FHIR uses (format):',                               o:['JSON/XML','Binary','Audio','Video'], a:0},
+  {id:88, s:'S5',t:'S5: Architecture',q:'AI layer supports:',                                o:['Prediction','Cooking','Sports','Gaming'], a:0},
+  {id:89, s:'S5',t:'S5: Architecture',q:'Scalability means:',                                o:['Growth ability','Speed','Size','Cost'], a:0},
+  {id:90, s:'S5',t:'S5: Architecture',q:'Interoperability means:',                           o:['System communication','Storage','UI','Security'], a:0},
+  {id:91, s:'S5',t:'S5: Architecture',q:'Availability means:',                               o:['System uptime','Speed','Size','Cost'], a:0},
+  {id:92, s:'S5',t:'S5: Architecture',q:'Security spans:',                                   o:['All layers','One layer','Data only','UI only'], a:0},
+  {id:93, s:'S5',t:'S5: Architecture',q:'API Gateway is:',                                   o:['Entry point','Database','UI','Device'], a:0},
+  {id:94, s:'S5',t:'S5: Architecture',q:'Kafka is used for:',                                o:['Streaming','Storage','UI','Security'], a:0},
+  {id:95, s:'S5',t:'S5: Architecture',q:'Kubernetes manages:',                               o:['Containers','UI','Data','Users'], a:0},
+  {id:96, s:'S5',t:'S5: Architecture',q:'Docker is used for:',                               o:['Containers','UI','Data','Security'], a:0},
+  {id:97, s:'S5',t:'S5: Architecture',q:'AI in MIS supports:',                               o:['CDSS','Billing','UI','Hardware'], a:0},
+  {id:98, s:'S5',t:'S5: Architecture',q:'Data lake stores:',                                 o:['Large data','Small data','UI','Code'], a:0},
+  {id:99, s:'S5',t:'S5: Architecture',q:'Real-time data means:',                             o:['Immediate access','Delayed','Offline','Manual'], a:0},
+  {id:100,s:'S5',t:'S5: Architecture',q:'MIS main goal:',                                    o:['Improve healthcare','Reduce care','Increase errors','Remove systems'], a:0},
+  // CLIPS
+  {id:101,s:'CLIPS',t:'CLIPS',       q:'In CLIPS, knowledge is mainly represented using:',   o:['Classes','Facts and Rules','Tables','JSON'], a:1},
+  {id:102,s:'CLIPS',t:'CLIPS',       q:'Which construct is used to create a rule?',           o:['deffacts','defrule','deffunction','defclass'], a:1},
+  {id:103,s:'CLIPS',t:'CLIPS',       q:'Which function prints output to screen?',             o:['display','write','printout','echo'], a:2},
+  {id:104,s:'CLIPS',t:'CLIPS',       q:'What does (test (> ?t 38)) do?',                      o:['Assign value','Compare condition','Print variable','Create fact'], a:1},
+  {id:105,s:'CLIPS',t:'CLIPS',       q:'Which is used to define user functions?',             o:['defrule','deffacts','deffunction','defglobal'], a:2},
+  {id:106,s:'CLIPS',t:'CLIPS',       q:'What does (bind ?x 5) do?',                           o:['Deletes variable','Assigns value','Prints value','Creates rule'], a:1},
+  {id:107,s:'CLIPS',t:'CLIPS',       q:'Which statement adds new knowledge?',                 o:['add','insert','assert','push'], a:2},
+  {id:108,s:'CLIPS',t:'CLIPS',       q:'Which removes a fact?',                               o:['delete','remove','retract','erase'], a:2},
+  {id:109,s:'CLIPS',t:'CLIPS',       q:'CLIPS uses which reasoning strategy?',                o:['Forward chaining','Backward chaining','Random search','Gradient descent'], a:0},
+  {id:110,s:'CLIPS',t:'CLIPS',       q:'What does crlf mean in printout?',                   o:['Clear memory','New line','Delete fact','Stop program'], a:1},
+  // Case Studies
+  {id:111,s:'CASE',t:'Case Studies', q:'What is the main purpose of a Medical Information System (MIS)?',             o:['Entertainment','Managing healthcare data','Gaming','Social networking'], a:1},
+  {id:112,s:'CASE',t:'Case Studies', q:'Which layer interacts directly with doctors and nurses?',                      o:['Data Layer','Infrastructure Layer','Presentation Layer','Integration Layer'], a:2},
+  {id:113,s:'CASE',t:'Case Studies', q:'Which layer stores patient records and lab results?',                          o:['Data Layer','Presentation Layer','Business Layer','Security Layer'], a:0},
+  {id:114,s:'CASE',t:'Case Studies', q:'Which standard is commonly used for healthcare data exchange?',                o:['HTTP','HL7 / FHIR','FTP','SMTP'], a:1},
+  {id:115,s:'CASE',t:'Case Studies', q:'Which system stores digital patient health records?',                          o:['ERP','CRM','EHR','LMS'], a:2},
+  {id:116,s:'CASE',t:'Case Studies', q:'Clinical Decision Support Systems (CDSS) belong mainly to which layer?',      o:['Presentation','Business Logic','Infrastructure','Network'], a:1},
+  {id:117,s:'CASE',t:'Case Studies', q:'Which layer connects lab systems, pharmacy systems, and external hospitals?',  o:['Integration Layer','Presentation Layer','Data Entry Layer','Security Layer'], a:0},
+  {id:118,s:'CASE',t:'Case Studies', q:'Which is NOT part of MIS infrastructure?',                                    o:['Cloud servers','Networks','Medical devices','Patient diagnosis rules'], a:3},
+  {id:119,s:'CASE',t:'Case Studies', q:'Which of the following is a security feature in MIS?',                        o:['Encryption','Authentication','Access control','All of the above'], a:3},
+  {id:120,s:'CASE',t:'Case Studies', q:'PACS is mainly used for:',                                                    o:['Billing','Image storage and sharing','Appointment booking','Payroll'], a:1},
+  {id:121,s:'CASE',t:'Case Studies', q:'In modern cloud MIS, microservices help mainly with:',                        o:['Reducing data size','System scalability and flexibility','Removing databases','Removing security'], a:1},
+  {id:122,s:'CASE',t:'Case Studies', q:'FHIR is best described as:',                                                  o:['Database language','Healthcare data exchange standard','Programming language','Operating system'], a:1},
+  {id:123,s:'CASE',t:'Case Studies', q:'Which layer typically contains APIs?',                                        o:['Integration Layer','Presentation Layer','Data Layer','Device Layer'], a:0},
+  {id:124,s:'CASE',t:'Case Studies', q:'Which MIS goal is related to different hospital systems working together?',   o:['Scalability','Interoperability','Usability','Portability'], a:1},
+  {id:125,s:'CASE',t:'Case Studies', q:'In AI-enabled MIS, NLP is mainly used for:',                                  o:['Medical imaging hardware','Processing clinical text notes','Network routing','Server cooling'], a:1},
+  {id:126,s:'CASE',t:'Case Studies', q:'Doctors view patient data via a web dashboard. Which MIS layer is responsible?', o:['Data Layer','Presentation Layer','Infrastructure Layer','Integration Layer'], a:1},
+  {id:127,s:'CASE',t:'Case Studies', q:'Lab results appear in patient record automatically. Which layer enabled this?',   o:['Business Logic','Integration Layer','Presentation Layer','Security Layer'], a:1},
+  {id:128,s:'CASE',t:'Case Studies', q:'A doctor prescribes a drug; system warns about drug interaction. Which system?',  o:['PACS','CDSS','LIS','RIS'], a:1},
+];
+
+// STATE
+let answers = {};
+let correct = 0, wrong = 0, answered = 0;
+let filter = 'all';
+
+function updateSB() {
+  document.getElementById('sbA').textContent = answered;
+  document.getElementById('sbC').textContent = correct;
+  document.getElementById('sbW').textContent = wrong;
+  document.getElementById('sbFill').style.width = (answered / Q.length * 100) + '%';
+  if (answered === Q.length) showFinish();
+}
+
+function choose(id, idx) {
+  if (answers[id] !== undefined) return;
+  answers[id] = idx;
+  const q = Q.find(x => x.id === id);
+  const ok = idx === q.a;
+  if (ok) correct++; else wrong++;
+  answered++;
+
+  const card = document.getElementById('c' + id);
+  card.classList.add(ok ? 'ok' : 'bad');
+
+  card.querySelectorAll('.opt').forEach((el, i) => {
+    el.classList.add('locked');
+    if (i === idx && ok)  el.classList.add('chosen-right');
+    if (i === idx && !ok) el.classList.add('chosen-wrong');
+    if (!ok && i === q.a) el.classList.add('reveal');
+  });
+
+  const fb = card.querySelector('.feedback');
+  fb.classList.add('show', ok ? 'right' : 'wrong');
+  fb.innerHTML = ok
+    ? `✅ Correct! — <strong>${L[q.a]}: ${q.o[q.a]}</strong>`
+    : `❌ Wrong! Correct answer: <strong>${L[q.a]}: ${q.o[q.a]}</strong>`;
+
+  updateSB();
+}
+
+function render() {
+  const wrap = document.getElementById('quizWrap');
+  wrap.innerHTML = '';
+  const list = filter === 'all' ? Q : Q.filter(x => x.s === filter);
+
+  list.forEach((q, i) => {
+    const done = answers[q.id] !== undefined;
+    const ch   = answers[q.id];
+    const ok   = done && ch === q.a;
+
+    const optsH = q.o.map((o, i) => {
+      let cls = 'opt';
+      if (done) {
+        cls += ' locked';
+        if (i === ch && ok)  cls += ' chosen-right';
+        if (i === ch && !ok) cls += ' chosen-wrong';
+        if (!ok && i === q.a) cls += ' reveal';
+      }
+      const click = !done ? `onclick="choose(${q.id},${i})"` : '';
+      return `<div class="${cls}" ${click}><div class="opt-l">${L[i]}</div><div class="opt-t">${o}</div></div>`;
+    }).join('');
+
+    let fbH = '';
+    if (done) {
+      const fc = ok ? 'feedback show right' : 'feedback show wrong';
+      const fm = ok
+        ? `✅ Correct! — <strong>${L[q.a]}: ${q.o[q.a]}</strong>`
+        : `❌ Wrong! Correct answer: <strong>${L[q.a]}: ${q.o[q.a]}</strong>`;
+      fbH = `<div class="${fc}">${fm}</div>`;
+    } else {
+      fbH = `<div class="feedback"></div>`;
+    }
+
+    const cc = done ? (ok ? 'q-card ok' : 'q-card bad') : 'q-card';
+    const d = document.createElement('div');
+    d.className = cc;
+    d.id = 'c' + q.id;
+    d.style.animationDelay = Math.min(i * 0.018, 0.3) + 's';
+    d.innerHTML = `
+      <div class="q-meta"><span class="q-num">Q${q.id}</span><span class="q-tag">${q.t}</span></div>
+      <div class="q-text">${q.q}</div>
+      <div class="opts">${optsH}</div>
+      ${fbH}`;
+    wrap.appendChild(d);
+  });
+}
+
+function setFilter(s, el) {
+  filter = s;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function showFinish() {
+  const pct = Math.round(correct / Q.length * 100);
+  document.getElementById('finish').style.display = 'block';
+  document.getElementById('finPct').textContent = pct + '%';
+  document.getElementById('finC').textContent = correct;
+  document.getElementById('finW').textContent = wrong;
+  const msgs = [[90,'🏆 Excellent! You nailed it!'],[75,'🎯 Great job! Strong understanding.'],[60,'📚 Good effort. Keep reviewing.'],[0,'💪 Keep going! You can do better.']];
+  document.getElementById('finMsg').textContent = msgs.find(([m]) => pct >= m)[1];
+  document.getElementById('finish').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function retry() {
+  answers = {}; correct = 0; wrong = 0; answered = 0; filter = 'all';
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  document.getElementById('finish').style.display = 'none';
+  updateSB(); render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+updateSB();
+render();
+</script>
+</body>
+</html>
