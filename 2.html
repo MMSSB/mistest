@@ -122,7 +122,12 @@ header {
   height: 24px;
 }
 
-.settings-btn {
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
   background: transparent;
   border: none;
   color: var(--text-muted);
@@ -135,7 +140,7 @@ header {
   transition: all 0.2s ease;
 }
 
-.settings-btn:hover {
+.icon-btn:hover {
   background: var(--surface-alt);
   color: var(--text-main);
 }
@@ -168,8 +173,10 @@ header {
 .bg-neutral { background: var(--answered); }
 .bg-success { background: var(--success); }
 .bg-danger { background: var(--danger); }
+.bg-primary { background: var(--primary); }
 .text-success { color: var(--success); }
 .text-danger { color: var(--danger); }
+.text-primary { color: var(--primary); }
 
 .progress-track {
   width: 100%;
@@ -415,7 +422,7 @@ header {
 
 .finish-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 32px;
 }
@@ -450,7 +457,7 @@ header {
   box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5);
 }
 
-/* === SETTINGS MODAL & BOTTOM SHEET === */
+/* === MODALS (Settings & History) === */
 .overlay {
   position: fixed;
   inset: 0;
@@ -470,6 +477,7 @@ header {
   pointer-events: auto;
 }
 
+/* Modals Animation Strategy Fix */
 .modal {
   background: var(--surface);
   width: 90%;
@@ -477,12 +485,17 @@ header {
   border-radius: 24px;
   padding: 24px;
   box-shadow: var(--shadow-lg);
-  transform: scale(0.95) translateY(10px);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: 1px solid var(--border);
+  
+  display: none;
+  transform: scale(0.95) translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+  opacity: 0;
 }
-.overlay.active .modal {
+/* When transitioning in, .active gets added just after display:block is set */
+.overlay.active .modal.active {
   transform: scale(1) translateY(0);
+  opacity: 1;
 }
 
 .modal-header {
@@ -507,12 +520,12 @@ header {
 }
 .modal-close:hover { background: var(--border); color: var(--text-main); }
 
+/* Settings Switch / Theme Buttons / Inputs */
 .theme-options {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-
 .theme-btn {
   display: flex;
   align-items: center;
@@ -537,7 +550,6 @@ header {
 }
 .theme-btn.active svg { color: var(--primary); }
 
-/* Switch Toggle Styling */
 .setting-row {
   display: flex;
   justify-content: space-between;
@@ -545,47 +557,87 @@ header {
   padding: 16px;
   border: 2px solid var(--border);
   border-radius: 16px;
-  margin-top: 24px;
-  font-weight: 600;
+  margin-top: 16px;
   color: var(--text-main);
 }
+.setting-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.setting-label .title { font-weight: 600; }
+.setting-label .hint { font-size: 0.75rem; color: var(--text-muted); font-weight: 500;}
 
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 24px;
+.num-input {
+  width: 70px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text-main);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
 }
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
+.num-input:focus { border-color: var(--primary); }
+
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0;}
+.switch input { opacity: 0; width: 0; height: 0; }
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: var(--text-muted);
-  transition: .4s;
-  border-radius: 24px;
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--border-hover); transition: .4s; border-radius: 24px;
 }
 .slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
+  position: absolute; content: ""; height: 18px; width: 18px;
+  left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
 }
-input:checked + .slider {
-  background-color: var(--primary);
+input:checked + .slider { background-color: var(--primary); }
+input:checked + .slider:before { transform: translateX(20px); }
+
+/* History List Styles */
+.history-list {
+  max-height: 350px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-right: 8px;
 }
-input:checked + .slider:before {
-  transform: translateX(20px);
+.history-list::-webkit-scrollbar { width: 6px; }
+.history-list::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 10px; }
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--surface-alt);
+  border-radius: 12px;
+  border: 1px solid var(--border);
 }
+.history-info { display: flex; flex-direction: column; gap: 4px; }
+.history-score { font-weight: 800; font-size: 1.1rem; color: var(--text-main); }
+.history-meta { font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;}
+
+.btn-danger-outline {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid var(--danger);
+  color: var(--danger);
+  background: transparent;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.btn-danger-outline:hover { background: var(--danger-bg); }
+.empty-history { text-align: center; color: var(--text-muted); padding: 30px 0; font-weight: 500; }
 
 /* Mobile Bottom Sheet Override */
 @media (max-width: 600px) {
@@ -597,13 +649,12 @@ input:checked + .slider:before {
     border-bottom: none;
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 20px));
     transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
   }
-  .overlay.active .modal { transform: translateY(0); }
-  
-  .finish-grid { grid-template-columns: 1fr; }
+  .overlay.active .modal.active { 
+    transform: translateY(0); 
+  }
+  .finish-grid { grid-template-columns: repeat(2, 1fr); }
 }
-
 </style>
 </head>
 <body>
@@ -617,19 +668,36 @@ input:checked + .slider:before {
         </svg>
         MIS Exam
       </div>
-      <button class="settings-btn" onclick="openSettings()" aria-label="Settings">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.99l1.005.828c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-        </svg>
-      </button>
+      
+      <div class="header-actions">
+        <button class="icon-btn" onclick="confirmRefresh()" aria-label="Restart Quiz" title="Restart Quiz">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+        </button>
+        <button class="icon-btn" onclick="openModal('historyModal')" aria-label="History">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+          </svg>
+        </button>
+        <button class="icon-btn" onclick="openModal('settingsModal')" aria-label="Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.99l1.005.828c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+        </button>
+      </div>
     </div>
     
     <div class="stats-container">
+      <div class="stat-badge text-primary" id="timerBadge">
+        <div class="dot bg-primary"></div>
+        <span class="val" id="timerDisplay">00:00</span>
+      </div>
       <div class="stat-badge">
         <div class="dot bg-neutral"></div>
         <span>Answered</span>
-        <span class="val" id="sbA">0/128</span>
+        <span class="val" id="sbA">0/138</span>
       </div>
       <div class="stat-badge text-success">
         <div class="dot bg-success"></div>
@@ -675,7 +743,11 @@ input:checked + .slider:before {
         <div class="lbl">Wrong</div>
       </div>
       <div class="fin-stat">
-        <div class="val text-main">128</div>
+        <div class="val text-primary" id="finTime">00:00</div>
+        <div class="lbl">Time</div>
+      </div>
+      <div class="fin-stat">
+        <div class="val text-main" id="finTotal">138</div>
         <div class="lbl">Total</div>
       </div>
     </div>
@@ -693,12 +765,14 @@ input:checked + .slider:before {
   </div>
 </main>
 
-<!-- Settings Modal / Bottom Sheet -->
-<div class="overlay" id="settingsOverlay" onclick="closeSettingsOverlay(event)">
-  <div class="modal">
+<!-- Shared Modal Overlay -->
+<div class="overlay" id="mainOverlay" onclick="closeOverlays(event)">
+  
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal">
     <div class="modal-header">
       <h3 class="modal-title">Settings</h3>
-      <button class="modal-close" onclick="closeSettings()" aria-label="Close">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
         </svg>
@@ -727,62 +801,56 @@ input:checked + .slider:before {
     </div>
     
     <div class="setting-row">
-      <span>Randomize Questions</span>
+      <div class="setting-label">
+        <span class="title">Session Timer</span>
+        <span class="hint">Track time taken to finish</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="timerToggle" onchange="toggleTimerSetting(this)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-row">
+      <div class="setting-label">
+        <span class="title">Randomize Questions</span>
+        <span class="hint">Shuffle question order</span>
+      </div>
       <label class="switch">
         <input type="checkbox" id="randomizeToggle" onchange="toggleRandomize(this)">
         <span class="slider"></span>
       </label>
     </div>
-    
+
+    <div class="setting-row">
+      <div class="setting-label">
+        <span class="title">Test Yourself (Limit)</span>
+        <span class="hint">Leave empty for all questions</span>
+      </div>
+      <input type="number" id="limitInput" class="num-input" placeholder="All" min="1" max="138" onchange="updateLimit(this.value)">
+    </div>
   </div>
+
+  <!-- History Modal -->
+  <div class="modal" id="historyModal">
+    <div class="modal-header">
+      <h3 class="modal-title">Quiz History</h3>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="history-list" id="historyListContainer">
+      <!-- History items injected here via JS -->
+    </div>
+    <button class="btn-danger-outline" onclick="clearHistory()">Clear History</button>
+  </div>
+
 </div>
 
 <script>
-// --- THEME MANAGEMENT ---
-const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
-let currentTheme = localStorage.getItem('theme') || 'system';
-
-function applyTheme(theme) {
-  if (theme === 'system') {
-    document.documentElement.setAttribute('data-theme', sysDark.matches ? 'dark' : 'light');
-  } else {
-    document.documentElement.setAttribute('data-theme', theme);
-  }
-  
-  // Update button active states
-  document.querySelectorAll('.theme-btn').forEach(btn => {
-    if (btn.dataset.theme === theme) btn.classList.add('active');
-    else btn.classList.remove('active');
-  });
-}
-
-function setTheme(theme) {
-  currentTheme = theme;
-  localStorage.setItem('theme', theme);
-  applyTheme(theme);
-}
-
-sysDark.addEventListener('change', () => {
-  if (currentTheme === 'system') applyTheme('system');
-});
-
-// Initialize Theme
-applyTheme(currentTheme);
-
-// --- MODAL LOGIC ---
-const overlay = document.getElementById('settingsOverlay');
-
-function openSettings() {
-  overlay.classList.add('active');
-}
-function closeSettings() {
-  overlay.classList.remove('active');
-}
-function closeSettingsOverlay(e) {
-  if (e.target === overlay) closeSettings();
-}
-
-// --- QUIZ DATA ---
+// --- GLOBAL DATA ---
 const LETTERS = ['A', 'B', 'C', 'D'];
 const Q = [
   // S1
@@ -920,12 +988,197 @@ const Q = [
   {id:126,s:'CASE',t:'Case Studies', q:'Doctors view patient data via a web dashboard. Which MIS layer is responsible?', o:['Data Layer','Presentation Layer','Infrastructure Layer','Integration Layer'], a:1},
   {id:127,s:'CASE',t:'Case Studies', q:'Lab results appear in patient record automatically. Which layer enabled this?',   o:['Business Logic','Integration Layer','Presentation Layer','Security Layer'], a:1},
   {id:128,s:'CASE',t:'Case Studies', q:'A doctor prescribes a drug; system warns about drug interaction. Which system?',  o:['PACS','CDSS','LIS','RIS'], a:1},
+  {id:129,s:'CASE',t:'Case Studies', q:'The drug interaction rule engine belongs mainly to which MIS layer?', o:['Presentation','Business Logic','Data','Infrastructure'], a:1},
+  {id:130,s:'CASE',t:'Case Studies', q:'A hospital moves patient databases to cloud storage. Which layer is most affected?', o:['Infrastructure Layer','Presentation Layer','Security Layer','Workflow Layer'], a:0},
+  {id:131,s:'CASE',t:'Case Studies', q:'The hospital adds Kubernetes to manage services. This belongs to:', o:['Data Layer','Infrastructure Layer','Presentation Layer','Integration Layer'], a:1},
+  {id:132,s:'CASE',t:'Case Studies', q:'A hospital exchanges patient data with another hospital using FHIR. FHIR belongs to:', o:['Security Layer','Integration Layer','Presentation Layer','Hardware Layer'], a:1},
+  {id:133,s:'CASE',t:'Case Studies', q:'A hospital uses NLP to extract diseases from clinical notes. This belongs mainly to:', o:['Business Logic Layer','Infrastructure Layer','Network Layer','Device Layer'], a:0},
+  {id:134,s:'CASE',t:'Case Studies', q:'Clinical notes are stored in a database before NLP processing. Which layer stores them?', o:['Data Layer','Presentation Layer','Integration Layer','Security Layer'], a:0},
+  {id:135,s:'CASE',t:'Case Studies', q:'Only cardiologists can access cardiology patient records. This is:', o:['Encryption','Authentication','Access Control','Backup'], a:2},
+  {id:136,s:'CASE',t:'Case Studies', q:'Patient data is encrypted during transfer between systems. This is:', o:['Authorization','Encryption','Logging','Scheduling'], a:1},
+  {id:137,s:'CASE',t:'Case Studies', q:'Radiology images are stored and shared using:', o:['CDSS','PACS','EHR','FHIR'], a:1},
+  {id:138,s:'CASE',t:'Case Studies', q:'Patient registers → Doctor enters notes → Lab uploads results → Billing generated automatically. Which concept is demonstrated?', o:['Isolated systems','Integrated HIS / MIS workflow','Manual processing','Offline healthcare'], a:1},
 ];
 
-// --- RANDOMIZATION & STATE ---
+// --- THEME MANAGEMENT ---
+const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+let currentTheme = localStorage.getItem('theme') || 'system';
+
+function applyTheme(theme) {
+  if (theme === 'system') {
+    document.documentElement.setAttribute('data-theme', sysDark.matches ? 'dark' : 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    if (btn.dataset.theme === theme) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+}
+
+function setTheme(theme) {
+  currentTheme = theme;
+  localStorage.setItem('theme', theme);
+  applyTheme(theme);
+}
+sysDark.addEventListener('change', () => { if (currentTheme === 'system') applyTheme('system'); });
+applyTheme(currentTheme);
+
+// --- MODALS & ANIMATION FIX ---
+const overlay = document.getElementById('mainOverlay');
+const modals = document.querySelectorAll('.modal');
+
+function openModal(modalId) {
+  // Hide all modals before showing the selected one
+  modals.forEach(m => {
+    m.classList.remove('active');
+    m.style.display = 'none';
+  });
+  
+  const targetModal = document.getElementById(modalId);
+  targetModal.style.display = 'block'; // Make it part of flow
+  
+  // Force a reflow so the browser processes the display:block before adding the active transition class
+  void targetModal.offsetWidth;
+  
+  targetModal.classList.add('active');
+  overlay.classList.add('active');
+  
+  if(modalId === 'historyModal') renderHistory();
+}
+
+function closeModal() {
+  overlay.classList.remove('active');
+  modals.forEach(m => {
+    m.classList.remove('active');
+    // Give time for the CSS transition to finish before setting display to none
+    setTimeout(() => { m.style.display = 'none'; }, 300);
+  });
+}
+
+function closeOverlays(e) { if (e.target === overlay) closeModal(); }
+
+
+// --- HISTORY LOGIC ---
+let quizHistory = JSON.parse(localStorage.getItem('quizHistory')) || [];
+
+function saveHistory(score, total, timeSecs) {
+  quizHistory.unshift({
+    date: Date.now(),
+    score: score,
+    total: total,
+    time: timeSecs
+  });
+  localStorage.setItem('quizHistory', JSON.stringify(quizHistory));
+}
+
+function clearHistory() {
+  if(!confirm("Are you sure you want to clear your quiz history?")) return;
+  quizHistory = [];
+  localStorage.removeItem('quizHistory');
+  renderHistory();
+}
+
+function renderHistory() {
+  const container = document.getElementById('historyListContainer');
+  container.innerHTML = '';
+  
+  if (quizHistory.length === 0) {
+    container.innerHTML = `<div class="empty-history">No past attempts found. Try finishing a quiz!</div>`;
+    return;
+  }
+  
+  quizHistory.forEach(h => {
+    const d = new Date(h.date);
+    const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+    const pct = Math.round((h.score / h.total) * 100);
+    const timeStr = formatTimeStr(h.time);
+    
+    let colorClass = pct >= 75 ? 'text-success' : (pct >= 50 ? 'text-main' : 'text-danger');
+    
+    const html = `
+      <div class="history-item">
+        <div class="history-info">
+          <div class="history-score ${colorClass}">${h.score} / ${h.total} (${pct}%)</div>
+          <div class="history-meta">${dateStr}</div>
+        </div>
+        <div class="history-meta" style="font-weight:700">⏱ ${timeStr}</div>
+      </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+  });
+}
+
+
+// --- TIMER LOGIC ---
+let timerInterval = null;
+let secondsElapsed = 0;
+let isTimerRunning = false;
+
+function formatTimeStr(s) {
+  const m = Math.floor(s / 60).toString().padStart(2, '0');
+  const sec = (s % 60).toString().padStart(2, '0');
+  return `${m}:${sec}`;
+}
+
+function startTimer() {
+  if (isTimerRunning || !isTimerEnabled) return;
+  isTimerRunning = true;
+  timerInterval = setInterval(() => {
+    secondsElapsed++;
+    document.getElementById('timerDisplay').innerText = formatTimeStr(secondsElapsed);
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  isTimerRunning = false;
+}
+
+function resetTimer() {
+  stopTimer();
+  secondsElapsed = 0;
+  document.getElementById('timerDisplay').innerText = "00:00";
+}
+
+
+// --- SETTINGS STATE & RANDOMIZATION ---
 let displayQ = [...Q];
+
+// Pull saved preferences from local storage or set defaults
+let isTimerEnabled = localStorage.getItem('enableTimer') === 'true'; // Defaults to false
 let isRandomized = localStorage.getItem('randomize') === 'true';
+let questionLimit = parseInt(localStorage.getItem('questionLimit')) || Q.length;
+
+// Pre-fill inputs with saved states
+document.getElementById('timerToggle').checked = isTimerEnabled;
 document.getElementById('randomizeToggle').checked = isRandomized;
+document.getElementById('limitInput').value = questionLimit === Q.length ? '' : questionLimit;
+document.getElementById('timerBadge').style.display = isTimerEnabled ? 'flex' : 'none';
+
+function toggleTimerSetting(el) {
+  isTimerEnabled = el.checked;
+  localStorage.setItem('enableTimer', isTimerEnabled);
+  document.getElementById('timerBadge').style.display = isTimerEnabled ? 'flex' : 'none';
+  if (!isTimerEnabled) stopTimer();
+  else if (answeredCount > 0) startTimer();
+}
+
+function updateLimit(val) {
+  let limit = parseInt(val);
+  if (isNaN(limit) || limit <= 0 || limit > Q.length) {
+    limit = Q.length; // Reset to all if invalid or blank
+  }
+  questionLimit = limit;
+  localStorage.setItem('questionLimit', questionLimit);
+  retryQuiz(); // Automatically rebuild the quiz with the new limits
+}
+
+function toggleRandomize(el) {
+  isRandomized = el.checked;
+  localStorage.setItem('randomize', isRandomized);
+  retryQuiz();
+}
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -934,24 +1187,26 @@ function shuffleArray(array) {
   }
 }
 
-function applyRandomization() {
+function applySettings() {
+  let tempQ = [...Q];
+  
   if (isRandomized) {
-    shuffleArray(displayQ);
+    shuffleArray(tempQ);
   } else {
-    // Sort back to their original numerical ID order
-    displayQ.sort((a, b) => a.id - b.id);
+    // Return to original ID order
+    tempQ.sort((a, b) => a.id - b.id);
+  }
+  
+  // Slice to user-defined limit
+  if (questionLimit && questionLimit < tempQ.length) {
+    displayQ = tempQ.slice(0, questionLimit);
+  } else {
+    displayQ = tempQ;
   }
 }
 
-function toggleRandomize(el) {
-  isRandomized = el.checked;
-  localStorage.setItem('randomize', isRandomized);
-  applyRandomization();
-  renderQuiz();
-}
-
-// Initial shuffle apply
-applyRandomization();
+// Initial build
+applySettings();
 
 // --- QUIZ STATE ---
 let answers = {};
@@ -966,20 +1221,23 @@ const iconCross = `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" s
 
 // --- RENDERING ---
 function updateScoreboard() {
-  document.getElementById('sbA').innerText = `${answeredCount}/${Q.length}`;
+  document.getElementById('sbA').innerText = `${answeredCount}/${displayQ.length}`;
   document.getElementById('sbC').innerText = correctCount;
   document.getElementById('sbW').innerText = wrongCount;
   
-  const percentage = (answeredCount / Q.length) * 100;
+  const percentage = (answeredCount / displayQ.length) * 100;
   document.getElementById('sbFill').style.width = percentage + '%';
   
-  if(answeredCount === Q.length) {
+  if(answeredCount === displayQ.length && displayQ.length > 0) {
     showFinishScreen();
   }
 }
 
 function handleChoose(qId, optIdx) {
-  if (answers[qId] !== undefined) return; // Already answered
+  if (answers[qId] !== undefined) return;
+  
+  // Start timer on first question clicked (if enabled)
+  if (answeredCount === 0) startTimer();
   
   answers[qId] = optIdx;
   const question = Q.find(q => q.id === qId);
@@ -989,28 +1247,24 @@ function handleChoose(qId, optIdx) {
   else wrongCount++;
   answeredCount++;
   
-  // Update DOM explicitly without full re-render
   const card = document.getElementById(`qcard-${qId}`);
   card.classList.add(isCorrect ? 'state-correct' : 'state-wrong');
   
   const options = card.querySelectorAll('.option');
   options.forEach((optEl, i) => {
     optEl.classList.add('locked');
-    optEl.removeAttribute('onclick'); // remove listener
-    
+    optEl.removeAttribute('onclick');
     if (i === optIdx && isCorrect) optEl.classList.add('chosen-right');
     if (i === optIdx && !isCorrect) optEl.classList.add('chosen-wrong');
     if (!isCorrect && i === question.a) optEl.classList.add('reveal');
   });
   
-  // Inject feedback
   const optsContainer = card.querySelector('.options-grid');
   const feedbackDiv = document.createElement('div');
   feedbackDiv.className = `feedback ${isCorrect ? 'success' : 'error'}`;
   feedbackDiv.innerHTML = isCorrect 
     ? `${iconCheck} <span><strong>Correct!</strong> The answer is ${LETTERS[question.a]}: ${question.o[question.a]}</span>`
     : `${iconCross} <span><strong>Incorrect.</strong> The correct answer is ${LETTERS[question.a]}: ${question.o[question.a]}</span>`;
-  
   optsContainer.insertAdjacentElement('afterend', feedbackDiv);
   
   updateScoreboard();
@@ -1020,7 +1274,6 @@ function renderQuiz() {
   const container = document.getElementById('quizContainer');
   container.innerHTML = '';
   
-  // Use displayQ instead of Q so ordering preferences are respected
   const filteredQ = currentFilter === 'all' ? displayQ : displayQ.filter(q => q.s === currentFilter);
   
   filteredQ.forEach((q, index) => {
@@ -1031,11 +1284,9 @@ function renderQuiz() {
     let cardClass = 'q-card';
     if(isAnswered) cardClass += isCorrect ? ' state-correct' : ' state-wrong';
     
-    // Build options
     let optionsHtml = q.o.map((optText, i) => {
       let optClass = 'option';
       let clickAttr = `onclick="handleChoose(${q.id}, ${i})"`;
-      
       if (isAnswered) {
         optClass += ' locked';
         clickAttr = '';
@@ -1043,16 +1294,9 @@ function renderQuiz() {
         if (i === userAns && !isCorrect) optClass += ' chosen-wrong';
         if (!isCorrect && i === q.a) optClass += ' reveal';
       }
-      
-      return `
-        <div class="${optClass}" ${clickAttr}>
-          <div class="opt-letter">${LETTERS[i]}</div>
-          <div class="opt-text">${optText}</div>
-        </div>
-      `;
+      return `<div class="${optClass}" ${clickAttr}><div class="opt-letter">${LETTERS[i]}</div><div class="opt-text">${optText}</div></div>`;
     }).join('');
     
-    // Build feedback if answered
     let feedbackHtml = '';
     if (isAnswered) {
       feedbackHtml = `
@@ -1065,18 +1309,12 @@ function renderQuiz() {
     
     const cardHtml = `
       <div class="${cardClass}" id="qcard-${q.id}" style="animation-delay: ${Math.min(index * 0.03, 0.4)}s">
-        <div class="q-header">
-          <span class="q-tag">${q.t}</span>
-          <span class="q-num">Q${q.id}</span>
-        </div>
+        <div class="q-header"><span class="q-tag">${q.t}</span><span class="q-num">Q${q.id}</span></div>
         <div class="q-text">${q.q}</div>
-        <div class="options-grid">
-          ${optionsHtml}
-        </div>
+        <div class="options-grid">${optionsHtml}</div>
         ${feedbackHtml}
       </div>
     `;
-    
     container.insertAdjacentHTML('beforeend', cardHtml);
   });
 }
@@ -1086,17 +1324,24 @@ function setFilter(filterVal, btnEl) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   btnEl.classList.add('active');
   renderQuiz();
-  // Ensure we smoothly scroll slightly up if user is deep
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function showFinishScreen() {
+  stopTimer();
+  saveHistory(correctCount, displayQ.length, secondsElapsed);
+  
   const finishScreen = document.getElementById('finishScreen');
-  const pct = Math.round((correctCount / Q.length) * 100);
+  const pct = Math.round((correctCount / displayQ.length) * 100);
   
   document.getElementById('finPct').innerText = `${pct}%`;
   document.getElementById('finC').innerText = correctCount;
   document.getElementById('finW').innerText = wrongCount;
+  document.getElementById('finTotal').innerText = displayQ.length;
+  
+  // Conditionally hide timer in finish screen if not enabled
+  document.getElementById('finTime').parentElement.style.display = isTimerEnabled ? 'block' : 'none';
+  if(isTimerEnabled) document.getElementById('finTime').innerText = formatTimeStr(secondsElapsed);
   
   const titleEl = document.getElementById('finTitle');
   const msgEl = document.getElementById('finMsg');
@@ -1117,17 +1362,21 @@ function retryQuiz() {
   answeredCount = 0;
   document.getElementById('finishScreen').style.display = 'none';
   
-  // Re-apply randomization on retry if it's toggled ON
-  applyRandomization();
+  resetTimer();
+  applySettings(); // Applies both randomization and limits
   
-  // Reset tabs
   const tabs = document.querySelectorAll('.tab-btn');
   setFilter('all', tabs[0]);
   updateScoreboard();
 }
 
-// --- UI INTERACTIONS ---
-// Enable horizontal scrolling with mouse wheel for the tabs container on PC
+function confirmRefresh() {
+  if (answeredCount === 0 || confirm("Are you sure you want to restart the quiz? Your current progress will be lost.")) {
+    retryQuiz();
+  }
+}
+
+// UI INTERACTIONS
 const tabsContainer = document.getElementById('tabsContainer');
 tabsContainer.addEventListener('wheel', (evt) => {
   evt.preventDefault();
